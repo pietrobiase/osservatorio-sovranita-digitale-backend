@@ -1,0 +1,70 @@
+site_name: Osservatorio Sovranità Digitale
+site_description: >-
+  Come nascono i dati dell'Osservatorio: dall'anagrafica degli enti
+  alla mappa della sovranità digitale.
+site_author: Osservatorio Sovranità Digitale
+copyright: Osservatorio Sovranità Digitale
+
+docs_dir: docs
+site_dir: site
+use_directory_urls: true
+
+theme:
+  name: readthedocs
+  language: it
+  highlightjs: true
+  navigation_depth: 3
+  collapse_navigation: false
+  sticky_navigation: true
+  include_homepage_in_sidebar: true
+  prev_next_buttons_location: bottom
+  titles_only: false
+
+plugins:
+  - search:
+      lang: it
+
+markdown_extensions:
+  - admonition
+  - attr_list
+  - def_list
+  - footnotes
+  - tables
+  - toc:
+      permalink: true
+      toc_depth: 3
+  - pymdownx.details
+  - pymdownx.superfences:
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:pymdownx.superfences.fence_code_format
+  - pymdownx.highlight:
+      anchor_linenums: true
+  - pymdownx.inlinehilite
+  - pymdownx.tabbed:
+      alternate_style: true
+  - pymdownx.snippets
+
+extra_css:
+  - css/extra.css
+
+extra_javascript:
+  - https://unpkg.com/mermaid@10.9.1/dist/mermaid.min.js
+  - js/mermaid-init.js
+
+nav:
+  - "Home": index.md
+  - "Il racconto": 01-il-racconto.md
+  - "Fonti e perimetro": 02-fonti-e-perimetro.md
+  - "Dall'ente al dominio": 03-dall-ente-al-dominio.md
+  - "La posta: MX": 04-posta-mx.md
+  - "La delega: NS": 05-delega-ns.md
+  - "Il volto web: CNAME e TLS": 06-web-cname-tls.md
+  - "L'infrastruttura: ASN e GeoIP": 07-infrastruttura-asn-geoip.md
+  - "La sintesi: ISDC": 08-indice-isdc.md
+  - "La pubblicazione: GeoJSON e statistiche": 09-output-frontend.md
+  - "Leggere i risultati": 10-leggere-i-risultati.md
+  - "Limiti e qualità del dato": 11-limiti-e-qualita.md
+  - "Glossario": glossario.md
+  - "Appendice metodologica": appendice-metodologica.md
