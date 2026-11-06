@@ -1,0 +1,4 @@
+# Dipendenze per la build MkDocs su Read the Docs.
+# Il tema "readthedocs" è incluso in MkDocs e non richiede pacchetti aggiuntivi.
+mkdocs==1.6.1
+pymdown-extensions==12.2
