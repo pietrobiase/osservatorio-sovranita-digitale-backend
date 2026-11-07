@@ -1,8 +1,0 @@
-# Ignora un file specifico
-
-# Ignora tutti i file con una certa estensione
-*.bak
-
-# Ignora un'intera cartella e tutto il suo contenuto
-__pycache__/
-old/
