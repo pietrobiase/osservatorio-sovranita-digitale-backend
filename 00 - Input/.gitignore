@@ -1,0 +1,13 @@
+# Ignora un file specifico
+Fonti.txt
+
+# Ignora tutti i file con una certa estensione
+*.bak
+
+# Ignora un'intera cartella e tutto il suo contenuto
+categorie/
+comuni-italiani/
+dataset_not_used/
+enti/
+geonames/
+rtd/

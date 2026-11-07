@@ -43,7 +43,7 @@ Questo passaggio è ciò che trasforma un elenco di indirizzi in una mappa di
 soggetti. Senza ASN, un sito dietro un IP qualsiasi sarebbe indistinguibile da
 un sito dietro un IP qualsiasi. Con ASN, si può dire che due enti usano lo
 stesso provider, che un ente ha tutti i servizi su un'unica infrastruttura,
-che una quota rilevante del perimetro dipende da un pò di grandi operatori
+che una quota rilevante del perimetro dipende da pochi grandi operatori
 globali.
 
 ### Che cosa l'ASN non dice

@@ -121,8 +121,8 @@ dato più frequente e anche il più delicato da interpretare.
 **Il punto osservato è il bordo, non necessariamente l'origine.** Quando il
 sito è dietro una CDN, l'indirizzo e il certificato appartengono al nodo che
 serve l'utente. Il server che conserva i contenuti può trovarsi altrove, anche
-in un altro paese. L'Osservatorio misura la facciata visibile, non la
-backend.
+in un altro paese. L'Osservatorio misura la facciata visibile, non
+l'infrastruttura di origine.
 
 **Un CNAME verso una CDN non dice dove sono i dati.** Dice che il traffico web
 passa da quella CDN. La localizzazione dei contenuti e dei database è un'altra

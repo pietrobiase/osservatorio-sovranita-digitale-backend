@@ -22,7 +22,8 @@ theme:
 
 plugins:
   - search:
-      lang: it
+      lang:
+        - it
 
 markdown_extensions:
   - admonition

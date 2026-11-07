@@ -1,0 +1,7 @@
+# Ignora un file specifico
+
+# Ignora tutti i file con una certa estensione
+*.bak
+*.db
+
+# Ignora un'intera cartella e tutto il suo contenuto
