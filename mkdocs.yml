@@ -64,7 +64,7 @@ nav:
   - "Il volto web: CNAME e TLS": 06-web-cname-tls.md
   - "L'infrastruttura: ASN e GeoIP": 07-infrastruttura-asn-geoip.md
   - "La mappa: IP per paese": 07b-mappa-ip-paesi.md
-  - "La sintesi: ISDPA": 08-indice-isdc.md
+  - "La sintesi: ISDPA": 08-indice-isdpa.md
   - "La pubblicazione: GeoJSON e statistiche": 09-output-frontend.md
   - "Leggere i risultati": 10-leggere-i-risultati.md
   - "Limiti e qualità del dato": 11-limiti-e-qualita.md
