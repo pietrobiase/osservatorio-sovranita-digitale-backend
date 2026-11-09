@@ -253,7 +253,7 @@ Un indirizzo già presente non viene rielaborato, a meno che la sua riga non sia
 incompleta. Questo vale anche per l'ASN e per il GeoIP: la fotografia può
 contenere dati di date diverse.
 
-## G. Indice ISDC
+## G. Indice ISDPA
 
 ### G.1 Cancello e coda
 
@@ -499,17 +499,18 @@ valutato con 42,4 sembra avere una misura reale, ma in realtà non ha dati.
 
 ### H.1 GeoJSON
 
-Vengono prodotti cinque livelli:
+Vengono prodotti sei livelli:
 
 | Livello | File | Contenuto |
 |---|---|---|
 | Posta | `poi_mx.geojson` | Enti con MX |
 | Delega DNS | `poi_ns.geojson` | Enti con NS |
 | Web | `poi_cname.geojson` | Enti con risoluzione web |
-| ISDC | `poi_isdc.geojson` | Enti con indice |
+| ISDPA | `poi_isdc.geojson` | Enti con indice |
 | Datacenter | `poi_datacenter.geojson` | Datacenter censiti |
+| IP per paese | `poi_ip_country.geojson` | Una feature per paese con i contatori dei cinque canali |
 
-Ogni feature contiene:
+Ogni feature dei primi cinque livelli contiene:
 
 - una geometria puntuale con longitudine e latitudine;
 - gli identificativi dell'ente;
@@ -517,7 +518,7 @@ Ogni feature contiene:
 - la categoria;
 - i campi specifici del livello.
 
-Per il livello ISDC i campi specifici includono:
+Per il livello ISDPA i campi specifici includono:
 
 - punteggio posta, DNS e web;
 - ASN e organizzazione per ciascun canale;
@@ -525,9 +526,19 @@ Per il livello ISDC i campi specifici includono:
 - punteggio totale e banda;
 - indicatore hyperscaler.
 
-Se le coordinate mancano, la geometria usa la coppia sentinella `(-1, -1)`.
-Il record resta nel file. Il frontend può riconoscere la sentinella e non
-disegnare il punto.
+Se le coordinate mancano, la geometria dei livelli per ente usa la coppia
+sentinella `(-1, -1)`. Il record resta nel file. Il frontend può riconoscere la
+sentinella e non disegnare il punto.
+
+Il livello **IP per paese** segue regole diverse: una feature per paese, con
+coordinate del centroide prese da `country_coordinates` (gradi decimali,
+intervallo mondiale) e proprietà `country_code`, `country_name`, `continent`,
+`mx`, `ns`, `cname`, `a`, `tls`, `enti_totali`. I contatori contano record di
+canale; `enti_totali` conta gli enti distinti del paese. Il file include un
+blocco `metadata` con data di generazione, filtro `country_source = 'geoip'`,
+regola di conteggio e avvertenze. I paesi senza coordinate valide sono esclusi
+e riportati nel log; non viene usata la sentinella `(-1, -1)`. Il dettaglio è
+nel capitolo [La mappa: gli IP per paese](07b-mappa-ip-paesi.md).
 
 ### H.2 Statistiche
 
@@ -537,6 +548,7 @@ Il file statistico contiene:
 - una sezione per tipologia;
 - una sezione per categoria;
 - una sezione per ciascun canale;
+- una sezione per la distribuzione geografica degli IP;
 - una sezione per l'indice;
 - una sezione per il lock-in;
 - una sezione per la concentrazione ASN;
@@ -555,7 +567,8 @@ tipo. I tipi sono: conteggio, percentuale, punteggio, lista, indice.
 | Quota MX in Italia / fuori UE | Enti nella vista MX, cioè con provider e paese risolti |
 | Quota NS in Italia / fuori UE | Enti nella vista NS, anche con provider non identificato |
 | Quota CNAME in Italia / fuori UE | Enti nella vista CNAME, cioè con provider e paese risolti |
-| Statistiche ISDC | Enti con punteggio |
+| Distribuzione geografica (IP) | Enti distinti con almeno un IP `geoip` (21.962); la somma per paese non è additiva |
+| Statistiche ISDPA | Enti con punteggio |
 | Lock-in | Enti con punteggio |
 | Concentrazione ASN | Slot ente-canale con ASN non nullo |
 | Bande | Enti con punteggio |

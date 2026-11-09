@@ -78,7 +78,10 @@
 
 | Termine | Significato |
 |---|---|
-| **ISDC** | *Indice di Sovranità Digitale*: sintesi dei tre canali in un punteggio da 0 a 100. |
+| **ISDPA** | *Indice di Sovranità Digitale della Pubblica Amministrazione*: sintesi dei tre canali in un punteggio da 0 a 100. |
+| **ISDC** | Denominazione storica dell'indice, oggi ISDPA. Resta nei nomi tecnici (`05 - ISDC/`, `isdc.py`, `isdc_scores`, `POI_ISDC`, `poi_isdc.geojson`) per compatibilità. |
+| **Paese dell'IP** | Paese associato a un indirizzo IP da GeoIP. Nel layer per paese è il paese osservato, non necessariamente la posizione fisica del server. |
+| **Centroide** | Punto centrale di un paese usato per posizionare la feature nel layer `poi_ip_country.geojson`; non è la posizione del server. |
 | **Punteggio di canale** | Punteggio parziale relativo a posta, DNS o web. |
 | **Peso** | Importanza relativa di una dimensione o di un canale nella composizione del punteggio. |
 | **Punteggio grezzo** | Valore tra 0 e 1 ottenuto combinando le dimensioni di un canale, prima della trasformazione e della copertura. |

@@ -20,7 +20,7 @@ distinti.
 flowchart LR
     A["Database<br/>osservazioni e punteggi"] --> B["Viste di lettura<br/>per canale"]
     B --> C1["GeoJSON<br/>MX, NS, CNAME"]
-    B --> C2["GeoJSON<br/>ISDC"]
+    B --> C2["GeoJSON<br/>ISDPA"]
     B --> C3["GeoJSON<br/>datacenter"]
     B --> D["Statistiche<br/>aggregate"]
     C1 --> E["Frontend<br/>mappe"]
@@ -31,23 +31,31 @@ flowchart LR
 
 ## I livelli geografici
 
-La mappa è composta da più livelli, uno per canale, più uno per l'indice e uno
-per i datacenter. Ogni livello è un file autonomo, così il frontend può
-mostrare, nascondere o combinare i canali senza rigenerare i dati.
+La mappa è composta da più livelli, uno per canale, più uno per l'indice, uno
+per i datacenter e uno per gli IP aggregati per paese. Ogni livello è un file
+autonomo, così il frontend può mostrare, nascondere o combinare i canali senza
+rigenerare i dati.
 
 | Livello | Contenuto | Informazione caratteristica |
 |---|---|---|
 | Posta | Enti con un mail exchanger osservato | Nome del server MX |
 | Delega DNS | Enti con un nameserver osservato | Nome del nameserver |
 | Web | Enti con una risoluzione web osservata | Nome finale, emittente e tipo di certificato |
-| ISDC | Enti con un indice calcolato | Punteggio per canale, ASN e organizzazione, banda |
+| ISDPA | Enti con un indice calcolato | Punteggio per canale, ASN e organizzazione, banda |
 | Datacenter | Datacenter censiti in Italia | Nome, proprietario, indirizzo, tipo |
+| IP per paese | Una feature per paese con gli IP osservati | Contatori MX, NS, CNAME, A e TLS, enti distinti |
 
-I primi tre livelli raccontano i singoli canali. Il livello ISDC è quello
+I primi tre livelli raccontano i singoli canali. Il livello ISDPA è quello
 sintetico: contiene i punteggi delle tre dimensioni, i provider associati a
 ciascuna, l'emittente del certificato, il totale e la banda. È il livello che
 permette al frontend di colorare la mappa in base alla sovranità e di costruire
 il popup completo.
+
+Il livello **IP per paese** non rappresenta gli enti: una feature per paese
+riassume gli indirizzi osservati nei cinque canali. Il punto è il centroide del
+paese, non la posizione del server. Il dettaglio del modello di conteggio, del
+filtro `country_source = 'geoip'` e dei metadati è nel capitolo
+[La mappa: gli IP per paese](07b-mappa-ip-paesi.md).
 
 ### Il punto rappresenta l'ente
 
@@ -89,13 +97,14 @@ un valore, un tipo e una descrizione breve.
 | Posta (MX) | Copertura, quota in Italia, quota fuori UE, hyperscaler, top provider |
 | Nameserver (NS) | Copertura, quota in Italia, quota fuori UE, concentrazione, top provider |
 | Web e certificati (CNAME) | Copertura, quota in Italia, quota fuori UE, Let's Encrypt, top provider |
-| ISDC | Media, massimo, minimo, enti nella banda alta e nella banda fragile |
+| Distribuzione geografica (IP) | Paesi coinvolti, enti del perimetro con IP geoIP, top 10 per enti distinti con quota sul perimetro geoIP |
+| ISDPA | Media, massimo, minimo, enti nella banda alta e nella banda fragile |
 | Vendor lock-in | Enti con stesso provider sui tre canali, con due canali uguali, con provider diversi, non determinabile |
 | Concentrazione ASN | ASN unici, quota del primo provider, top cinque, indice di concentrazione |
 | Resilienza | Enti con DNS centralizzato e con DNS distribuito |
 | Cloud e hyperscaler | Quota di enti su cloud globale e conteggio assoluto |
 | TLS | Certificati Let's Encrypt |
-| Bande ISDC | Conteggio e percentuale per ogni banda |
+| Bande ISDPA | Conteggio e percentuale per ogni banda |
 
 Le card hanno tipi diversi: un **conteggio** è un numero assoluto, una
 **percentuale** è una quota, un **punteggio** è un valore dell'indice, una
@@ -113,8 +122,11 @@ hanno tutte lo stesso denominatore:
   con provider e paese risolti;
 - per la **delega DNS**, il denominatore è il numero di enti presenti nel
   canale NS, anche quando il provider non è identificato;
-- per l'**ISDC**, le statistiche sono calcolate sugli enti che hanno un
-  punteggio.
+- per l'**ISDPA**, le statistiche sono calcolate sugli enti che hanno un
+  punteggio;
+- per la **distribuzione geografica**, il denominatore è il numero di enti
+  distinti con almeno un IP `geoip` (21.962). La somma degli enti per paese è
+  maggiore e non è additiva, perché un ente può comparire in più paesi.
 
 La differenza nasce dai join delle viste di lettura. Per MX e CNAME la vista
 richiede che provider e paese esistano; per NS è più permissiva, perché un

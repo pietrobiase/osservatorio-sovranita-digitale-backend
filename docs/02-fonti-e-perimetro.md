@@ -14,6 +14,7 @@ ruolo preciso.
 | Italy Datacenters | Elenco dei datacenter presenti in Italia | Alimenta il livello informativo dedicato ai datacenter |
 | MaxMind GeoLite2 ASN | Sistema autonomo associato a un indirizzo IP | Identifica il provider di rete di MX, NS, CNAME e TLS |
 | MaxMind GeoLite2 Country | Paese e continente di un indirizzo IP | Colloca geograficamente l'infrastruttura osservata |
+| Centroidi dei paesi (`country-coordinates`) | Coordinate del centroide per codice ISO alpha-2 | Posiziona il layer `poi_ip_country.geojson`; non è la posizione degli IP |
 
 A queste si aggiungono dati di contesto che possono essere presenti nel
 database, ma non alimentano necessariamente le mappe e l'indice. La

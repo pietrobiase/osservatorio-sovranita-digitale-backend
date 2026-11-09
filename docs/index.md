@@ -59,7 +59,7 @@ flowchart TD
     C1 --> D["Arricchimento<br/>ASN e GeoIP"]
     C2 --> D
     C3 --> D
-    D --> E["Sintesi<br/>Indice di Sovranità Digitale"]
+    D --> E["Sintesi<br/>ISDPA"]
     E --> F["Pubblicazione<br/>GeoJSON e statistiche"]
     F --> G["Frontend<br/>mappe, schede, classifiche"]
 ```

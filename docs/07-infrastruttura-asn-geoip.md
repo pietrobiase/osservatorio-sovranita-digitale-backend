@@ -161,3 +161,11 @@ quote geografiche.
 **L'arricchimento è incrementale.** Un IP nuovo viene elaborato; uno già noto
 non viene aggiornato a ogni esecuzione. La fotografia geografica può quindi
 contenere informazioni di date diverse.
+
+## Dove finiscono questi dati
+
+Gli IP arricchiti alimentano anche il layer aggregato per paese:
+`poi_ip_country.geojson`. Una feature per paese riassume i record dei cinque
+canali e gli enti distinti, con il punto sul centroide del paese. Il modello di
+conteggio, il filtro `country_source = 'geoip'` e il significato delle quote
+sono descritti in [La mappa: gli IP per paese](07b-mappa-ip-paesi.md).

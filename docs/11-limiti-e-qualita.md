@@ -48,7 +48,7 @@ La raccolta è incrementale. Ogni record ha una data di ultimo tentativo, ma
 l'insieme dei record non è stato osservato nello stesso istante. Le statistiche
 mescolano osservazioni di date diverse.
 
-Il punteggio ISDC, in particolare, non viene ricalcolato automaticamente. Un
+Il punteggio ISDPA, in particolare, non viene ricalcolato automaticamente. Un
 ente valutato mesi prima conserva il suo punteggio anche se il dominio è
 cambiato. Per aggiornarlo bisogna rimuoverlo dalla tabella dei punteggi e
 rimetterlo in coda. Questo è il limite più importante per chi legge serie

@@ -1,9 +1,9 @@
-# La sintesi: ISDC
+# La sintesi: ISDPA
 
 ## Da tre osservazioni a un indice
 
 I canali MX, NS e CNAME raccontano tre storie parziali. L'**Indice di
-Sovranità Digitale** (ISDC) le mette insieme in un unico numero, con l'obiettivo
+Sovranità Digitale della Pubblica Amministrazione** (ISDPA) le mette insieme in un unico numero, con l'obiettivo
 di rispondere a una domanda sintetica: quanto è autonoma, distribuita o
 dipendente l'infrastruttura digitale di un ente?
 
@@ -12,6 +12,11 @@ costruzione con scelte precise: quali dimensioni contano, quanto pesano, come
 si trattano i dati mancanti, quali correzioni applicare. Conoscerle è
 indispensabile per non leggere il numero come se fosse una misura oggettiva
 della realtà.
+
+!!! note "Nomi tecnici"
+    L'indice è oggi denominato **ISDPA**. Restano invariati per compatibilità
+    i nomi tecnici storici `05 - ISDC/`, `isdc.py`, `isdc_scores`, `POI_ISDC`
+    e `poi_isdc.geojson`.
 
 ```mermaid
 flowchart TD
@@ -207,7 +212,7 @@ sia immune da rischi.
 
 ## Che cosa misura davvero l'indice
 
-L'ISDC misura la **collocazione e la concentrazione delle infrastrutture
+L'ISDPA misura la **collocazione e la concentrazione delle infrastrutture
 osservabili**. In particolare:
 
 - quanto i servizi dipendono da provider esteri;

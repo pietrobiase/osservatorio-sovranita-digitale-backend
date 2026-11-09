@@ -1,8 +1,10 @@
 # Osservatorio Sovranità Digitale — Backend
 
-Pipeline dati dell'*Osservatorio Sovranità Digitale*: raccoglie le anagrafiche degli enti pubblici italiani, interroga DNS e TLS dei domini istituzionali, arricchisce i record con dati ASN e geografici, calcola l'**Indice di Sovranità Digitale (ISDC)** e produce i GeoJSON e le statistiche consumati dal frontend.
+Pipeline dati dell'*Osservatorio Sovranità Digitale*: raccoglie le anagrafiche degli enti pubblici italiani, interroga DNS e TLS dei domini istituzionali, arricchisce i record con dati ASN e geografici, calcola l'**Indice di Sovranità Digitale della Pubblica Amministrazione (ISDPA)** e produce i GeoJSON e le statistiche consumati dal frontend.
 
 Il frontend è un repository separato e **non esegue mai SQL**: legge esclusivamente i file JSON/GeoJSON generati da questa pipeline.
+
+**Documentazione online:** la documentazione metodologica e tecnica dell'Osservatorio è pubblicata su Read the Docs: [sovranita-digitale-osservatorio.readthedocs.io](https://sovranita-digitale-osservatorio.readthedocs.io/).
 
 ---
 
@@ -21,7 +23,7 @@ osservatorio-sovranita-digitale-backend/
     ├── 02 - LoadAnagrafiche/     # caricamento anagrafiche e storico modifiche
     ├── 03 - AggiornaLatLon/      # geocoding/aggiornamento coordinate
     ├── 04 - QueryDNS/            # crawler DNS/TLS/ASN (MX, NS, CNAME)
-    ├── 05 - ISDC/                # calcolo ISDC e viste correlate
+    ├── 05 - ISDC/                # calcolo ISDPA e viste correlate
     ├── 06 - BuildGeojson/        # generazione GeoJSON per il frontend
     ├── 07 - StatsJson/           # generazione stat.json
     ├── 08 - ReportPDF/           # reportistica (se utilizzata)
@@ -58,8 +60,9 @@ Database SQLite: `main/database/<database_name>` (tipicamente `Enti_IT.db`).
 | `enti_ns` | Risultati DNS NS per ente (nameserver primario utile, IP, ASN, metadati dominio/crawl). |
 | `enti_cname` | Risultati CNAME/A/TLS per ente (catena/finale, IP, ASN, issuer/tipo TLS, metadati). |
 | `asn` | Anagrafica ASN osservati. |
-| `ip_country` | Geolocalizzazione IP (country/continent/cluster, ecc.). |
-| `isdc_scores` | Punteggi ISDC calcolati per ente. |
+| `ip_country` | Geolocalizzazione IP (paese, continente, paese di registrazione, cluster e fonte `country_source`). |
+| `country_coordinates` | Centroidi dei paesi per codice ISO alpha-2 (`alpha2`, `alpha3`, `latitude`, `longitude`, `name`), caricati da `00 - Input/country-centroids.xlsx`. |
+| `isdc_scores` | Punteggi ISDPA calcolati per ente. |
 | `change_history_mod` | Storico per-campo delle modifiche. |
 
 ### Storico modifiche (`change_history_mod`)
@@ -102,7 +105,7 @@ Anagrafiche (enti_contatti)
         │                         │
         │                         └─► geo_lookup ─► ip_country
         │
-        └─► ISDC (isdc.py) ─► isdc_scores
+        └─► ISDPA (isdc.py) ─► isdc_scores
                                   │
                                   ├─► Crea_View.sql / viste DB
                                   ├─► Generate_geojson.py ─► GeoJSON + manifest
@@ -170,11 +173,13 @@ python get_mx.py --recalculate --max-run 500
 - Utile per recuperare campi mancanti senza cancellare dati già presenti.
 - Se esistono sia valore vecchio che nuovo, vince il vecchio (per effetto di `COALESCE`): il retry non è uno strumento di correzione “aggressiva” dei valori già valorizzati.
 
-### 5.4 `05 - ISDC`
-Calcola l'indice ISDC e popola `isdc_scores` in base ai dati disponibili (DNS/ASN/geo, secondo le regole implementate nello script e nelle viste). Dopo variazioni strutturali o ripopolamenti può essere necessario rieseguire `Crea_View.sql` per aggiornare le viste consumate da GeoJSON/statistiche.
+### 5.4 `05 - ISDC` (indice ISDPA)
+Calcola l'indice **ISDPA** (Indice di Sovranità Digitale della Pubblica Amministrazione) e popola `isdc_scores` in base ai dati disponibili (DNS/ASN/geo, secondo le regole implementate nello script e nelle viste). Dopo variazioni strutturali o ripopolamenti può essere necessario rieseguire `Crea_View.sql` per aggiornare le viste consumate da GeoJSON/statistiche.
+
+> Nota sui nomi tecnici: l'indice è oggi denominato **ISDPA**, ma restano invariati per compatibilità i nomi storici `05 - ISDC/`, `isdc.py`, `isdc_scores`, `POI_ISDC` e `poi_isdc.geojson`.
 
 ### 5.5 `06 - BuildGeojson`
-Genera i GeoJSON e il `manifest.json` usati dal frontend. Le viste `POI_*` sono il contratto dati lato DB; la pubblicabilità dei punti sulla mappa (coordinate valide/plottabili) va applicata secondo le regole condivise in `common.py` e negli script di generazione.
+Genera i GeoJSON e il `manifest.json` usati dal frontend. Le viste `POI_*` sono il contratto dati lato DB; la pubblicabilità dei punti sulla mappa (coordinate valide/plottabili) va applicata secondo le regole condivise in `common.py` e negli script di generazione. La voce `IP_COUNTRY` produce `poi_ip_country.geojson`, il layer con una feature per paese (dettagli in §7.1).
 
 ### 5.6 `07 - StatsJson`
 Genera `stat.json` (KPI, bande, metadati dataset) per il frontend/reportistica. Gli `id` delle card sono contrattuali per i consumer: rinominarli richiede aggiornamento coordinato dei consumer.
@@ -290,11 +295,55 @@ Output `enti_cname`: `dominio`, `a_record`, `a_asn`, `cname_final`, `cname_ip`, 
 
 ## 7. Viste SQL e output
 
-- `Crea_View.sql` definisce le viste usate per esportazioni e statistiche (es. `POI_MX`, `POI_NS`, `POI_CNAME`, `POI_ISDC`, viste statistiche correlate).
+- `Crea_View.sql` definisce le viste usate per esportazioni e statistiche (es. `POI_MX`, `POI_NS`, `POI_CNAME`, `POI_ISDC`, `POI_IP_COUNTRY`, `STAT_PAESI`, viste statistiche correlate).
 - `06 - BuildGeojson` produce GeoJSON + manifest per il frontend.
 - `07 - StatsJson` produce `stat.json`.
 
 Se cambia la logica di `isdc_scores` o delle viste, rieseguire `Crea_View.sql` sul DB target prima di rigenerare GeoJSON/statistiche.
+
+### 7.1 Il layer `poi_ip_country.geojson`
+
+Il layer geografico degli IP aggiunge una feature **per paese**, non per IP o per ente. Il punto è il centroide del paese; i contatori descrivono i record dei cinque canali e gli enti distinti associati al paese.
+
+**Viste coinvolte.**
+
+| Vista | Contenuto |
+|---|---|
+| `POI_IP_COUNTRY_RECORDS` | Una riga per record di canale (MX, NS, CNAME, A, TLS) con il paese dell'IP. |
+| `POI_IP_COUNTRY` | Aggregato per paese: contatori `mx`, `ns`, `cname`, `a`, `tls`, `enti_totali` e coordinate da `country_coordinates`. |
+| `STAT_PAESI` | Classifica dei paesi per enti distinti con percentuale sul perimetro `geoip`. |
+
+**Filtro e perimetro.** Le viste partono dalle tabelle `enti_mx`, `enti_ns` ed `enti_cname` (non dalle viste `POI_*`) e fanno join su `ip_country`. Sono incluse solo le righe con:
+
+- un indirizzo IP valorizzato nel canale;
+- un paese valorizzato in `ip_country`;
+- `ip_country.country_source = 'geoip'`.
+
+Restano quindi esclusi i record senza paese e gli IP il cui paese è stato ricavato dal paese di registrazione (`country_source = 'registered'`). I record senza IP non entrano nel conteggio.
+
+**Modello di conteggio.** I contatori `mx`, `ns`, `cname`, `a` e `tls` contano **record di canale**, non IP distinti: lo stesso IP può contribuire a più canali. `enti_totali` è invece il numero di enti distinti del paese sui cinque canali. Un ente può comparire in più paesi, quindi la somma degli `enti_totali` non è il totale degli enti.
+
+**Coordinate.** L'aggancio con `country_coordinates` avviene su `country_code = alpha2`. Il layer usa coordinate mondiali in gradi decimali (intervallo `-90..90` per la latitudine e `-180..180` per la longitudine) e **non** il vincolo "lat/lon non negative" valido per la sola Italia. I paesi senza coordinate valide vengono esclusi dal file e riportati nel log.
+
+**File e proprietà.** Il file è `poi_ip_country.geojson`, con nome tutto minuscolo. Le proprietà di ogni feature sono:
+
+| Proprietà | Significato |
+|---|---|
+| `country_code` | Codice ISO alpha-2 |
+| `country_name` | Nome del paese come restituito da GeoIP |
+| `continent` | Continente |
+| `mx`, `ns`, `cname`, `a`, `tls` | Record per canale associati al paese |
+| `enti_totali` | Enti distinti del paese |
+
+**Metadati.** Il `FeatureCollection` contiene un blocco `metadata` con `generated_at` (ISO 8601, `Europe/Rome`), `source`, `perimeter`, `counting` e `caveats`. I metadati dichiarano il filtro, la non additività delle quote e il fatto che il centroide non è la posizione del server.
+
+**Sezione `stat.json`.** `StatJson.py` aggiunge dopo `cname` la sezione `paesi`, titolo **Distribuzione geografica (IP)**, con:
+
+- `paesi_coinvolti`: numero di paesi con almeno un IP geolocalizzato;
+- `enti_perimetro_geoip`: numero di enti distinti del perimetro con almeno un IP geolocalizzato;
+- `paesi_top10`: TOP 10 per enti distinti, nel formato lista `Paese (conteggio)`.
+
+Il denominatore delle quote è il numero di enti distinti del perimetro `geoip`: **21.962**. La somma degli enti per paese è **35.378** associazioni paese-ente e non è additiva, perché un ente può comparire in più paesi. Il totale a monte, comprensivo degli IP con `country_source = 'registered'`, è **22.054**: i 92 enti di differenza non hanno IP `geoip` e quindi non compaiono nel layer. Il sottotitolo della card dichiara esplicitamente il perimetro e la non additività.
 
 ---
 
@@ -359,7 +408,7 @@ Controllare invece:
 
 Questa sezione raccoglie note utili ma **dipendenti dallo stato del DB e dei consumer**. Prima di decisioni operative, verificare sul database/ambiente corrente.
 
-- La copertura DNS/GeoIP, la dimensione di `isdc_scores` e le fasce ISDC cambiano nel tempo: usare query sul DB per i numeri aggiornati.
+- La copertura DNS/GeoIP, la dimensione di `isdc_scores` e le fasce ISDPA cambiano nel tempo: usare query sul DB per i numeri aggiornati.
 - `isdc_scores` può richiedere ripopolamento incrementale (in base a `max_run`) e successiva ricostruzione delle viste.
 - I consumer di `stat.json` (frontend/report) dipendono dal contratto delle chiavi: modifiche agli `id` o alla semantica dei KPI vanno coordinate.
 - La qualità del monitoraggio può essere migliorata raccogliendo più segnali (es. lista completa MX/NS, SPF/DMARC TXT, classificazione provider CNAME/CDN, eventuale analisi HTTP). Queste sono evoluzioni progettuali da implementare in modo incrementale, mantenendo compatibilità con lo schema/storico esistente.
@@ -377,6 +426,7 @@ L'elenco completo con URL originali è in [`../Fonti.txt`](../Fonti.txt) (se pre
 | Contratti (se usati) | OCDS / ANAC (dati.anticorruzione.it) |
 | Datacenter (se usati) | datacentermap.com |
 | GeoIP ASN/City/Country | MaxMind GeoLite2 |
+| Centroidi dei paesi | `00 - Input/country-centroids/` (CSV/XLSX locale) |
 | CPV (classificazioni) | TED/SIMAP |
 
 ---
@@ -398,7 +448,7 @@ python geo_lookup.py
 python get_mx.py --retry --max-run 500
 python get_mx.py --recalculate --max-run 500
 
-# ISDC
+# ISDPA
 cd ..\05 - ISDC
 python isdc.py
 
